@@ -2,10 +2,15 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>Socket.IO Twitter</title>
+    <title>RTBF Twitter</title>
   </head>
   <body>
-    <h1>Socket.IO Twitter: #SRCC</h1>
+    <form id="f_track">
+    <h1>RTBF Twitter: follow 
+	<input id="track" type="text" value="@RTBFinfo" />
+	<input type="submit" value="Go" />
+    </h1>
+    </form>
     <ul class="tweets"></ul>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
     <script src="/socket.io/socket.io.js"></script>
@@ -15,8 +20,14 @@
         var tweetList = $('ul.tweets');
         socket.on('tweet', function (data) {
           tweetList
-            .prepend('<li>' + data.user + ': ' + data.text + '</li>');
+            .prepend('<li><img src="' + data.profile_image_url + '" />' + data.user + ': ' + data.text + '</li>');
         });
+
+	$('#f_track').submit(function(event) {
+	   event.preventDefault();
+    	   socket.emit('track', { track: $("#track").val() });
+	   return false;
+	});
       });
     </script>
   </body>
