@@ -13,7 +13,7 @@ cd nodejs-notify
 npm install
 ```
 
-### Setup Twitter Keys 
+## Setup Twitter Keys 
 
 Rename the file config.sample.js into config.js
 
@@ -31,7 +31,7 @@ config.twitter.access_token_key = '',
 config.twitter.access_token_secret = ''
 ```
 
-## Running
+## Run
 
 ``` shell
 node twitter.js
