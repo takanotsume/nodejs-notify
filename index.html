@@ -6,9 +6,10 @@
   </head>
   <body>
     <form id="f_track">
-    <h1>RTBF Twitter: follow 
+    <h1>RTBF Twitter: 
 	<input id="track" type="text" value="@RTBFinfo" />
-	<input type="submit" value="Go" />
+	<input id="submit_follow" type="submit" value="Follow" />
+  <input id="submit_stop" type="submit" value="Stop" />
     </h1>
     </form>
     <ul class="tweets"></ul>
@@ -17,17 +18,31 @@
     <script>
       var socket = io.connect();
       jQuery(function ($) {
+        
         var tweetList = $('ul.tweets');
+
         socket.on('tweet', function (data) {
-          tweetList
-            .prepend('<li><img src="' + data.profile_image_url + '" />' + data.user + ': ' + data.text + '</li>');
+          if (data.user!=null) {
+            tweetList.prepend('<li><img src="' + data.profile_image_url + '" />' + data.user + ': ' + data.text + '</li>');
+          }
+          if (data.message!=null) {
+            tweetList.prepend('<li>' + data.message + '</li>');
+          }
         });
 
-	$('#f_track').submit(function(event) {
-	   event.preventDefault();
-    	   socket.emit('track', { track: $("#track").val() });
-	   return false;
-	});
+      	$('#submit_follow').click(function(event) {
+      	   event.preventDefault();
+           $('.tweets').html('');
+           socket.emit('track', { track: $("#track").val() });
+      	   return false;
+      	});
+
+        $('#submit_stop').click(function(event) {
+           event.preventDefault();
+           socket.emit('track', { track: 'stop_following' });
+           return false;
+        });
+
       });
     </script>
   </body>

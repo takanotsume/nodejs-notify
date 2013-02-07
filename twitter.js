@@ -7,6 +7,13 @@ var config = require('./config')
   , io = require('socket.io').listen(server)
   , twitter = require('ntwitter');
 
+function getFormattedDate() {
+    var date = new Date();
+    // var str = date.getFullYear() + "-" + date.getMonth() + "-" + date.getDate() + " " +  date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds();
+    var str = date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds();
+   return str;
+}
+
 server.listen(3000);
 
 io.sockets.on('connection', function (socket) {
@@ -22,21 +29,31 @@ io.sockets.on('connection', function (socket) {
       access_token_secret: config.twitter.access_token_secret
     });
 
-    twit.verifyCredentials(function (err, data) {
-      console.log('Connected with ' + data.screen_name);
+    twit.verifyCredentials(function (err, credential) {
+      if (data.track!='stop_following') {
+        console.log('Connected with ' + credential.screen_name);
+        io.sockets.volatile.emit('tweet', { message: getFormattedDate() + ' Connected to Twitter Stream API' });
+        io.sockets.volatile.emit('tweet', { message: getFormattedDate() + ' Following: '+ data.track });
+      }
     });
 
     twit.stream('statuses/filter', { track: [data.track] }, function(stream) {
       stream.on('data', function (datas) {
-        if (datas.disconnect!=null && datas.disconnect.code==7) {
-          console.log('Disconnected from stream');
+        if (data.track=='stop_following') {
+          io.sockets.volatile.emit('tweet', { message: 'Disconnected from stream' });
           stream.destroy;
         } else {
-          io.sockets.volatile.emit('tweet', {
-            user: datas.user.screen_name,
-            text: datas.text,
-            profile_image_url: datas.user.profile_image_url
-          });
+          if (datas.disconnect!=null && datas.disconnect.code==7) {
+            console.log('Disconnected from stream');
+            io.sockets.volatile.emit('tweet', { message: 'Disconnected from stream' });
+            stream.destroy;
+          } else {
+            io.sockets.volatile.emit('tweet', {
+              user: datas.user.screen_name,
+              text: datas.text,
+              profile_image_url: datas.user.profile_image_url
+            });
+          }
         }
       });
       setTimeout(stream.destroy, 60000);
