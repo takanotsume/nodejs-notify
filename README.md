@@ -5,9 +5,7 @@ Twitter notify implemented with Express 3.x and Socket.io.
 
 ## Installation
 
-You can install Twitter notify dependencies with npm: `npm install`.
-
-## Getting started
+Clone GIT repository and install dependencies.
 
 ``` shell
 git clone https://github.com/takanotsume/nodejs-notify.git
