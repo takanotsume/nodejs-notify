@@ -9,13 +9,19 @@ You can install Twitter notify dependencies with npm: `npm install`.
 
 ## Getting started
 
-Rename the file config.sample.js into config.js 
+``` shell
+git clone https://github.com/takanotsume/nodejs-notify.git
+cd nodejs-notify
+npm install
+```
+
+### Setup Twitter Keys 
+
+Rename the file config.sample.js into config.js
 
 ``` shell
 cp config.sample.js config.js 
 ```
-
-### Setup Twitter Keys 
 
 The keys listed below can be obtained from [dev.twitter.com](http://dev.twitter.com) after [setting up a new App](https://dev.twitter.com/apps/new).
 
