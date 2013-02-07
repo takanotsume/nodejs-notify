@@ -9,35 +9,40 @@ var config = require('./config')
 
 server.listen(3000);
 
-var twit = new twitter({
-  consumer_key: config.twitter.consumer_key,
-  consumer_secret: config.twitter.consumer_secret,
-  access_token_key: config.twitter.access_token_key,
-  access_token_secret: config.twitter.access_token_secret
-});
-
-twit.verifyCredentials(function (err, data) {
-  console.log('Connected with ' + data.screen_name);
-});
-
-/*
-twit.stream('statuses/filter', { track: [data.track] }, function(stream) {
-  stream.on('data', function (data) {
-    io.sockets.volatile.emit('tweet', {
-      user: data.user.screen_name,
-      text: data.text,
-      profile_image_url: data.user.profile_image_url
-    });
-  });
-  setTimeout(stream.destroy, 60000);
-});
-*/
-
 io.sockets.on('connection', function (socket) {
 
   socket.on('track', function (data) {
 
     console.log(data.track);
+
+    var twit = new twitter({
+      consumer_key: config.twitter.consumer_key,
+      consumer_secret: config.twitter.consumer_secret,
+      access_token_key: config.twitter.access_token_key,
+      access_token_secret: config.twitter.access_token_secret
+    });
+
+    twit.verifyCredentials(function (err, data) {
+      console.log('Connected with ' + data.screen_name);
+    });
+
+    twit.stream('statuses/filter', { track: [data.track] }, function(stream) {
+      stream.on('data', function (datas) {
+        if (datas.disconnect!=null && datas.disconnect.code==7) {
+          console.log('Disconnected from stream');
+          stream.destroy;
+        } else {
+          io.sockets.volatile.emit('tweet', {
+            user: datas.user.screen_name,
+            text: datas.text,
+            profile_image_url: datas.user.profile_image_url
+          });
+        }
+      });
+      setTimeout(stream.destroy, 60000);
+    });
+
+    /*
   	twit.search(data.track, {}, function(err, data) {
   	  data.results.forEach(function(item){
   	    io.sockets.volatile.emit('tweet', {
@@ -47,6 +52,7 @@ io.sockets.on('connection', function (socket) {
   	    });
   	  });
   	});
+    */
 
   });
 
