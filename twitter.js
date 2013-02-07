@@ -1,3 +1,5 @@
+try {
+
 var config = require('./config')
   , express = require('express')
   , app = express()
@@ -14,7 +16,12 @@ var twit = new twitter({
   access_token_secret: config.twitter.access_token_secret
 });
 
-twit.stream('statuses/filter', { track: ['@RTBFinfo'] }, function(stream) {
+twit.verifyCredentials(function (err, data) {
+  console.log('Connected with ' + data.screen_name);
+});
+
+/*
+twit.stream('statuses/filter', { track: [data.track] }, function(stream) {
   stream.on('data', function (data) {
     io.sockets.volatile.emit('tweet', {
       user: data.user.screen_name,
@@ -22,14 +29,33 @@ twit.stream('statuses/filter', { track: ['@RTBFinfo'] }, function(stream) {
       profile_image_url: data.user.profile_image_url
     });
   });
+  setTimeout(stream.destroy, 60000);
 });
+*/
 
 io.sockets.on('connection', function (socket) {
+
   socket.on('track', function (data) {
+
     console.log(data.track);
+  	twit.search(data.track, {}, function(err, data) {
+  	  data.results.forEach(function(item){
+  	    io.sockets.volatile.emit('tweet', {
+  	      user: item.from_user_name,
+  	      text: item.text,
+  	      profile_image_url: item.profile_image_url
+  	    });
+  	  });
+  	});
+
   });
+
 });
 
 app.get('/', function (req, res) {
   res.sendfile(__dirname + '/index.html');
 });
+
+} catch (e) {
+  console.log(e);
+}
