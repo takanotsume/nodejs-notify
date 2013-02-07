@@ -26,3 +26,11 @@ config.twitter.consumer_secret = '',
 config.twitter.access_token_key = '',
 config.twitter.access_token_secret = ''
 ```
+
+## Running
+
+``` shell
+node twitter.js
+```
+
+The app will be running on port 3000
